@@ -1,0 +1,40 @@
+import { createContext, useContext, useEffect, useState } from "react";
+
+const UserContext = createContext();
+
+export const UserProvider = ({ children }) => {
+    const [user, setUser] = useState(() => {
+        const storedUser = localStorage.getItem("userData");
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        const storedUser = localStorage.getItem("userData");
+        console.log("Fetched user from localStorage:", storedUser);
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        setLoading(false);
+    }, []);
+
+    const updateUser = (newUserData) => {
+        setUser(newUserData);
+        localStorage.setItem("userData", JSON.stringify(newUserData));
+    };
+
+    return (
+        <UserContext.Provider value={{ user, updateUser ,loading }}>
+            {children}
+        </UserContext.Provider>
+    );
+};
+
+export const useUser = () => {
+    const context = useContext(UserContext);
+    if (!context) {
+        throw new Error("useUser must be used within a UserProvider");
+    }
+    return context;
+};
