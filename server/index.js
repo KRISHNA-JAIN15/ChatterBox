@@ -50,7 +50,7 @@ app.use("/api/user", userRoute); // User-related routes (profile, settings)
 
 // ✅ Test Route to check if the server is running
 app.get("/ok", (req, res) => {
-  res.json({ message: "Server is running!" }); // Returns a JSON response
+  res.status(200).json({ status: "OK", message: "Server is running!" });
 });
 
 // 🔥 Initialize Socket.io for real-time communication
