@@ -1,31 +1,42 @@
-import jwt from 'jsonwebtoken'
-import User from '../schema/userSchema.js'
+import jwt from "jsonwebtoken";
+import User from "../schema/userSchema.js";
 
-const isLogin = (req, res, next) => {
-    try {
-        // Safely get token from cookies or headers
-        let token = req.cookies?.jwt;
-        
-        // Fallback to parsing from cookie header if req.cookies is not available
-        if (!token && req.headers.cookie) {
-            token = req.headers.cookie.split("; ").find((cookie) => cookie.startsWith("jwt="))?.split("=")[1];
-        }
-        
-        //console.log(token);
-        if (!token) return res.status(401).send({ success: false, message: "User Unauthorize" });
-        const decode = jwt.verify(token,process.env.JWT_SECRET);
-        if(!decode)  return res.status(401).send({success:false, message:"User Unauthorize -Invalid Token"})
-        const user = await User.findById(decode.userId).select("-password");
-        if(!user) return res.status(404).send({success:false, message:"User not found"})
-        req.user = user,
-        next()
-    } catch (error) {
-        console.log(`error in isLogin middleware ${error.message}`);
-        res.status(500).send({
-            success: false,
-            message: error
-        })
+const isLogin = async (req, res, next) => {
+  try {
+    // Safely get token from cookies or headers
+    let token = req.cookies?.jwt;
+
+    // Fallback to parsing from cookie header if req.cookies is not available
+    if (!token && req.headers.cookie) {
+      token = req.headers.cookie
+        .split("; ")
+        .find((cookie) => cookie.startsWith("jwt="))
+        ?.split("=")[1];
     }
-}
 
-export default isLogin
+    //console.log(token);
+    if (!token)
+      return res
+        .status(401)
+        .send({ success: false, message: "User Unauthorize" });
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decode)
+      return res
+        .status(401)
+        .send({ success: false, message: "User Unauthorize -Invalid Token" });
+    const user = await User.findById(decode.userId).select("-password");
+    if (!user)
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    (req.user = user), next();
+  } catch (error) {
+    console.log(`error in isLogin middleware ${error.message}`);
+    res.status(500).send({
+      success: false,
+      message: error,
+    });
+  }
+};
+
+export default isLogin;
