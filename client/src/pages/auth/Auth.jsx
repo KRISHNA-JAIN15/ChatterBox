@@ -39,10 +39,6 @@ function Auth({ type }) {
       if (type === "login") {
         updateUser(response.data);
         //localStorage.setItem('userData', JSON.stringify(response.data));
-        // Save token in cookies
-        const date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-        const expires = "expires=" + date.toUTCString();
-        document.cookie = `jwt=${response.data.token}; path=/; ${expires}`;
         navigate("/");
       }
     } catch (error) {
